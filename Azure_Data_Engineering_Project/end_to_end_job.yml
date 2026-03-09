@@ -1,0 +1,53 @@
+resources:
+  jobs:
+    pipeline_sales_data:
+      name: pipeline_sales_data
+      tasks:
+        - task_key: silver_data
+          notebook_task:
+            notebook_path: /Workspace/Users/sahu.narayan@outlook.com/CarsProject/silver_notebook
+            source: WORKSPACE
+        - task_key: dim_brnach
+          depends_on:
+            - task_key: silver_data
+          notebook_task:
+            notebook_path: /Workspace/Users/sahu.narayan@outlook.com/CarsProject/gold_dim_branch_notebook
+            base_parameters:
+              incremental_flag: "1"
+            source: WORKSPACE
+        - task_key: dim_date
+          depends_on:
+            - task_key: silver_data
+          notebook_task:
+            notebook_path: /Workspace/Users/sahu.narayan@outlook.com/CarsProject/gold_dim_date_notebook
+            base_parameters:
+              incremental_flag: "1"
+            source: WORKSPACE
+        - task_key: fact_sales
+          depends_on:
+            - task_key: dim_brnach
+            - task_key: dim_dealer
+            - task_key: dim_model
+            - task_key: dim_date
+          notebook_task:
+            notebook_path: /Workspace/Users/sahu.narayan@outlook.com/CarsProject/gold_fact_sales
+            source: WORKSPACE
+        - task_key: dim_dealer
+          depends_on:
+            - task_key: silver_data
+          notebook_task:
+            notebook_path: /Workspace/Users/sahu.narayan@outlook.com/CarsProject/gold_dim_dealer_notebook
+            base_parameters:
+              incremental_flag: "1"
+            source: WORKSPACE
+        - task_key: dim_model
+          depends_on:
+            - task_key: silver_data
+          notebook_task:
+            notebook_path: /Workspace/Users/sahu.narayan@outlook.com/CarsProject/gold_dim_model_notebook
+            base_parameters:
+              incremental_flag: "1"
+            source: WORKSPACE
+      queue:
+        enabled: true
+      performance_target: PERFORMANCE_OPTIMIZED
